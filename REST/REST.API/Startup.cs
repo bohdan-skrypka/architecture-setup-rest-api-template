@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -39,16 +40,11 @@ namespace REST.API
         private IConfigurationSection _appsettingsConfigurationSection;
         private AppSettings _appSettings;
 
-        //  private readonly ILogger<Startup> _logger;
-        // private IServiceProvider _serviceProvider;
-
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             HostingEnvironment = env;
             Configuration = configuration;
-            //    _serviceProvider = serviceProvider;
 
-            //AppSettings
             _appsettingsConfigurationSection = Configuration.GetSection(nameof(AppSettings));
             if (_appsettingsConfigurationSection == null)
                 throw new NoNullAllowedException("No appsettings has been found");
@@ -59,6 +55,30 @@ namespace REST.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddLogging(logger => logger.AddSeq());
+
+            if (!HostingEnvironment.IsDevelopment())
+            {
+                //services.AddHsts(options =>
+                //{
+                //    options.Preload = true;
+                //    options.IncludeSubDomains = true;
+                //    options.MaxAge = TimeSpan.FromDays(60);
+                //    options.ExcludedHosts.Add("example.com");
+                //    options.ExcludedHosts.Add("www.example.com");
+                //});
+
+                var isPortOk = int.TryParse(Configuration.GetSection("https_port").Value, out int httpsPort);
+                if (!isPortOk)
+                {
+                    throw new Exception($"{nameof(isPortOk)} : {isPortOk}");
+                }
+
+                services.AddHttpsRedirection(opt =>
+                {
+                    opt.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
+                    opt.HttpsPort = httpsPort;
+                });
+            }
 
             services.AddOptions();
 
@@ -75,10 +95,7 @@ namespace REST.API
             {
                 if (_appSettings.IsValid())
                 {
-                    //_logger.LogDebug("Startup::ConfigureServices::valid AppSettings");
-
                     services.Configure<AppSettings>(_appsettingsConfigurationSection);
-                    // _logger.LogDebug("Startup::ConfigureServices::AppSettings loaded for DI");
 
                     services.AddControllers(
                         opt =>
@@ -103,12 +120,9 @@ namespace REST.API
 
                     //Business settings            
                     services.ConfigureBusinessServices(Configuration);
-
-                    //_logger.LogDebug("Startup::ConfigureServices::ApiVersioning, Swagger and DI settings");
                 }
                 else
                 {
-                    // _logger.LogDebug("Startup::ConfigureServices::invalid AppSettings");
                 }
 
                 // internal logic DIs
@@ -116,7 +130,6 @@ namespace REST.API
             }
             catch (Exception ex)
             {
-                // _logger.LogError(ex.Message);
             }
         }
 
@@ -165,10 +178,11 @@ namespace REST.API
                     app.UseHsts();
                 }
 
+                app.UseHttpsRedirection();
+
                 app.UseMaxConcurrentRequests();
                 app.UseIpRateLimiting();
 
-                app.UseHttpsRedirection();
                 app.UseRouting();
                 app.UseAuthorization();
                 app.UseEndpoints(endpoints =>
@@ -190,7 +204,6 @@ namespace REST.API
             }
             catch (Exception ex)
             {
-                //  _logger.LogError(ex.Message);
             }
         }
 
