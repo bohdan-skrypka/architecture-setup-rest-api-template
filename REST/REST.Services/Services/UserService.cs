@@ -5,6 +5,7 @@ using REST.Services.Model;
 using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace REST.Services
 {
@@ -26,7 +27,14 @@ namespace REST.Services
 
         public async Task<bool> UpdateAsync(User user)
         {
-            throw new NotImplementedException();
+            var t3 = Thread.CurrentThread.ManagedThreadId;
+
+            // await Task.Delay(1000);
+
+            var t4 = Thread.CurrentThread.ManagedThreadId;
+
+            return false;
+            // throw new NotImplementedException();
         }
 
         public async Task<bool> DeleteAsync(string id)

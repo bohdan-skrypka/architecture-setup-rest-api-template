@@ -16,6 +16,8 @@ using DataAccess.Async;
 using DataAccess.Sync;
 using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Http;
+using EFCoreProvider;
+using Microsoft.EntityFrameworkCore;
 
 namespace REST.IoC.Configuration.DI
 {
@@ -74,10 +76,13 @@ namespace REST.IoC.Configuration.DI
             });
         }
 
-        public static void RegisterRepositoryWrapper(this IServiceCollection services)
+        public static void RegisterRepositoryWrapper(this IServiceCollection services, IConfiguration configuration)
         {
-            //services.AddScoped<IRepositoryWrapperAsync, AsyncVersionRepositoryWrapper>();
-            //services.AddScoped<IRepositoryWrapperSync, SyncVersionRepositoryWrapper>();
+            services.AddDbContext<DatabaseContext>(options =>
+                        options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddScoped<IRepositoryWrapperAsync, AsyncVersionRepositoryWrapper>();
+            //  services.AddScoped<IRepositoryWrapperSync, SyncVersionRepositoryWrapper>();
         }
 
         public static void ConfigureIpRateLimits(this IServiceCollection services, IConfiguration configuration)

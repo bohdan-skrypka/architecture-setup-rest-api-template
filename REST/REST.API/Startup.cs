@@ -126,7 +126,7 @@ namespace REST.API
                 }
 
                 // internal logic DIs
-                services.RegisterRepositoryWrapper();
+                services.RegisterRepositoryWrapper(Configuration);
             }
             catch (Exception ex)
             {

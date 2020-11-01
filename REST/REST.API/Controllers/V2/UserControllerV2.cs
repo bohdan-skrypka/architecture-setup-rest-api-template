@@ -7,6 +7,8 @@ using System;
 using System.Threading.Tasks;
 using S = REST.Services.Model;
 using REST.IoC.Configuration.ThrottleAttribute;
+using System.Threading;
+using Repositories.DataContracts;
 
 namespace REST.API.Controllers.V2
 {
@@ -17,12 +19,14 @@ namespace REST.API.Controllers.V2
     {
         private readonly IUserService _service;
         private readonly IMapper _mapper;
+        private IRepositoryWrapperAsync _repositoryWrapper;
 
 #pragma warning disable CS1591
-        public UserController(IUserService service, IMapper mapper)
+        public UserController(IUserService service, IMapper mapper, IRepositoryWrapperAsync repositoryWrapper)
         {
             _service = service;
             _mapper = mapper;
+            _repositoryWrapper = repositoryWrapper;
         }
 #pragma warning restore CS1591
 
@@ -75,10 +79,48 @@ namespace REST.API.Controllers.V2
         [HttpPut()]
         public async Task<bool> UpdateUser(User parameter)
         {
+            var t1 = 0;
+            var t2 = 0;
+
+            //for (int i = 0; i < 100; i++)
+            //{
+            //    _repositoryWrapper.Owner.Create(new Database.Context.DataContracts.Entities.Owner { });
+            //}
+
+            //await _repositoryWrapper.SaveAsync();
+
+            for (int i = 0; i < 100; i++)
+            {
+                t1 = Thread.CurrentThread.ManagedThreadId;
+
+                await _repositoryWrapper.Owner.GetOwnerByIdAsync(50).ConfigureAwait(false);
+
+                t2 = Thread.CurrentThread.ManagedThreadId;
+                
+                // await _service.UpdateAsync(_mapper.Map<S.User>(parameter)).ConfigureAwait(false);
+
+                // await Task.Delay(100).ConfigureAwait(false);
+
+
+                if (t1 != t2)
+                {
+
+                }
+                else
+                {
+
+                }
+            }
+
+
             if (parameter == null)
                 throw new ArgumentNullException("parameter");
 
-            return await _service.UpdateAsync(_mapper.Map<S.User>(parameter));
+            await _service.UpdateAsync(_mapper.Map<S.User>(parameter)).ConfigureAwait(false);
+
+            var t5 = Thread.CurrentThread.ManagedThreadId;
+
+            return false;
         }
         #endregion
 

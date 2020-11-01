@@ -2,12 +2,14 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Repositories.DataContracts;
 using REST.API.DataContracts;
 using REST.API.DataContracts.Requests;
 using REST.IoC.Configuration.ThrottleAttribute;
 using REST.Services.Contracts;
 using System;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using S = REST.Services.Model;
 
@@ -21,13 +23,15 @@ namespace REST.API.Controllers.V1
         private readonly IUserService _service;
         private readonly IMapper _mapper;
         private readonly ILogger<UserController> _logger;
+        private IRepositoryWrapperAsync _repositoryWrapper;
 
 #pragma warning disable CS1591
-        public UserController(IUserService service, IMapper mapper, ILogger<UserController> logger)
+        public UserController(IUserService service, IMapper mapper, ILogger<UserController> logger, IRepositoryWrapperAsync repositoryWrapper)
         {
             _service = service;
             _mapper = mapper;
             _logger = logger;
+            _repositoryWrapper = repositoryWrapper;
         }
 #pragma warning restore CS1591
 
@@ -112,6 +116,8 @@ namespace REST.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         public async Task<bool> UpdateUser(User parameter)
         {
+            var t = Thread.CurrentThread.ManagedThreadId;
+
             if (parameter == null)
                 throw new ArgumentNullException("parameter");
 
