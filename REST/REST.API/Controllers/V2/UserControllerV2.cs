@@ -9,6 +9,7 @@ using S = REST.Services.Model;
 using REST.IoC.Configuration.ThrottleAttribute;
 using System.Threading;
 using Repositories.DataContracts;
+using System.Diagnostics;
 
 namespace REST.API.Controllers.V2
 {
@@ -75,9 +76,10 @@ namespace REST.API.Controllers.V2
         }
         #endregion
 
+
         #region PUT
         [HttpPut()]
-        public async Task<bool> UpdateUser(User parameter)
+        public  async Task<bool> UpdateUser(User parameter)
         {
             var t1 = 0;
             var t2 = 0;
@@ -88,19 +90,18 @@ namespace REST.API.Controllers.V2
             //}
 
             //await _repositoryWrapper.SaveAsync();
-
-            for (int i = 0; i < 100; i++)
+            int count = 0;
+            for (int i = 0; i < 1000; i++)
             {
                 t1 = Thread.CurrentThread.ManagedThreadId;
 
-                await _repositoryWrapper.Owner.GetOwnerByIdAsync(50).ConfigureAwait(false);
+                await _repositoryWrapper.Owner.GetOwnerByIdAsync(50).ConfigureAwait(true);
 
                 t2 = Thread.CurrentThread.ManagedThreadId;
-                
+
                 // await _service.UpdateAsync(_mapper.Map<S.User>(parameter)).ConfigureAwait(false);
 
                 // await Task.Delay(100).ConfigureAwait(false);
-
 
                 if (t1 != t2)
                 {
@@ -108,28 +109,31 @@ namespace REST.API.Controllers.V2
                 }
                 else
                 {
-
+                    count++;
                 }
             }
 
+#if debug
+#warning Deprecated code in this method.
+#endif
 
             if (parameter == null)
                 throw new ArgumentNullException("parameter");
 
-            await _service.UpdateAsync(_mapper.Map<S.User>(parameter)).ConfigureAwait(false);
+           await _service.UpdateAsync(_mapper.Map<S.User>(parameter));
 
             var t5 = Thread.CurrentThread.ManagedThreadId;
 
             return false;
         }
-        #endregion
+#endregion
 
-        #region DELETE
+#region DELETE
         [HttpDelete("{id}")]
         public async Task<bool> DeleteDevice(string id)
         {
             return await _service.DeleteAsync(id);
         }
-        #endregion
+#endregion
     }
 }

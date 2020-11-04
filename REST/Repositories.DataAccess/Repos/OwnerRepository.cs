@@ -27,12 +27,12 @@ namespace Repositories.DataAccess.Repos
         {
             var t1 = Thread.CurrentThread.ManagedThreadId;
 
-            await Task.Delay(1000).ConfigureAwait(false);
+            await Task.Delay(100);
 
             var t2 = Thread.CurrentThread.ManagedThreadId;
 
             var owner = await FindByCondition(owner => owner.Id.Equals(ownerId))
-                        .FirstOrDefaultAsync().ConfigureAwait(false);
+                        .FirstOrDefaultAsync();
 
             var t3 = Thread.CurrentThread.ManagedThreadId;
 

@@ -22,6 +22,7 @@ using Repositories.DataContracts;
 using REST.API.Common.Middlewares;
 using REST.API.Common.Settings;
 using REST.IoC.Configuration.DI;
+using REST.IoC.Configuration.Filters;
 using Serilog;
 using System;
 using System.Data;
@@ -58,14 +59,14 @@ namespace REST.API
 
             if (!HostingEnvironment.IsDevelopment())
             {
-                //services.AddHsts(options =>
-                //{
-                //    options.Preload = true;
-                //    options.IncludeSubDomains = true;
-                //    options.MaxAge = TimeSpan.FromDays(60);
-                //    options.ExcludedHosts.Add("example.com");
-                //    options.ExcludedHosts.Add("www.example.com");
-                //});
+                services.AddHsts(options =>
+                {
+                    options.Preload = true;
+                    options.IncludeSubDomains = true;
+                    options.MaxAge = TimeSpan.FromDays(60);
+                    options.ExcludedHosts.Add("example.com");
+                    options.ExcludedHosts.Add("www.example.com");
+                });
 
                 var isPortOk = int.TryParse(Configuration.GetSection("https_port").Value, out int httpsPort);
                 if (!isPortOk)
@@ -79,6 +80,8 @@ namespace REST.API
                     opt.HttpsPort = httpsPort;
                 });
             }
+
+            services.AddControllers(opt => opt.Filters.Add<LogRequestTimeFilterAttribute>()).AddNewtonsoftJson();
 
             services.AddOptions();
 

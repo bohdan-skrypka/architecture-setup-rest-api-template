@@ -24,7 +24,7 @@ namespace REST.API.Tests.Controllers.ControllerTests.V1
             var loggerFactory = _serviceProvider.GetRequiredService<ILoggerFactory>();
             var logger = loggerFactory.CreateLogger<UserController>();
 
-            _controller = new UserController(businessService, mapper, logger);
+            //_controller = new UserController(businessService, mapper, logger);
         }
 
         [TestMethod]
