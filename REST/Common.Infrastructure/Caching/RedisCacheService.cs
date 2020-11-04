@@ -34,17 +34,18 @@ namespace Common.Infrastructure.Caching
 
         public T Set<T>(string cacheKey, T value)
         {
-            _distributedCache.Set(cacheKey, value, _distributedCacheOptions);
-            return
+//            _distributedCache.Set(cacheKey, value, _distributedCacheOptions);
+            return default;
         }
 
         public bool TryGet<T>(string cacheKey, out T value)
         {
-            _distributedCache.getTryGetValue(cacheKey, out value);
-
-            return value == null
-                ? false
-                : true;
+            // _distributedCache.getTryGetValue(cacheKey, out value);
+           value = default;
+            return false;
+            //return value == null
+            //    ? false
+            //    : true;
         }
     }
 }
