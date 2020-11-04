@@ -1,5 +1,8 @@
 ﻿using AspNetCore.MaxConcurrentRequests.Middlewares;
 using AspNetCoreRateLimit;
+using Common.Infrastructure;
+using Common.Infrastructure.Caching;
+using Common.Infrastructure.Enum;
 using DataAccess;
 using EFCoreProvider;
 using Hangfire;
@@ -19,6 +22,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.PlatformAbstractions;
 using Newtonsoft.Json;
 using Repositories.DataContracts;
+using Repositories.DataContracts.Repo2;
+using Repositories.DataContracts.Repo2.Repositories;
 using REST.API.Common.Middlewares;
 using REST.API.Common.Settings;
 using REST.IoC.Configuration.DI;
@@ -88,11 +93,18 @@ namespace REST.API
             services.AddMemoryCache();
             services.ConfigureIpRateLimits(Configuration);
 
+            //services.AddDbContext<DatabaseContext>(opt => opt.UseSqlServer(connectString));
             var connectString = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<DatabaseContext>(opt => opt.UseSqlServer(connectString));
             services.AddHangfire(x => x.UseSqlServerStorage(connectString));
 
             services.AddHangfireServer();
+
+            #region Repositories
+            services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddTransient<IOwnerRepositoryCache, OwnerRepositoryCache>();
+            #endregion
+
+            services.ConfigureCachingInMemory(Configuration);
 
             try
             {
@@ -192,6 +204,7 @@ namespace REST.API
                 {
                     endpoints.MapControllers();
                 });
+
                 app.UseRequestLocalization();
 
                 //SWAGGER
@@ -203,7 +216,7 @@ namespace REST.API
                     }
                 }
 
-                app.UseHangfireDashboard("/mydashboard");
+                app.UseHangfireDashboard("/jobs");
             }
             catch (Exception ex)
             {

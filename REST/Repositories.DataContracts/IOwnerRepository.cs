@@ -7,7 +7,7 @@ namespace Repositories.DataContracts
 {
     public interface IOwnerRepository : IRepositoryBase<Owner>
     {
-        Task<IEnumerable<Owner>> GetAllOwnersAsync();
+        Task<IReadOnlyList<Owner>> GetAllOwnersAsync();
         Task<Owner> GetOwnerByIdAsync(int ownerId);
         Task<Owner> GetOwnerWithDetailsAsync(int ownerId);
         void CreateOwner(Owner owner);

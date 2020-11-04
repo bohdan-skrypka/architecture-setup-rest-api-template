@@ -16,7 +16,7 @@ namespace Repositories.DataAccess.Repos
         {
         }
 
-        public async Task<IEnumerable<Owner>> GetAllOwnersAsync()
+        public async Task<IReadOnlyList<Owner>> GetAllOwnersAsync()
         {
             return await FindAll()
                //.OrderBy(ow => ow.Name)
