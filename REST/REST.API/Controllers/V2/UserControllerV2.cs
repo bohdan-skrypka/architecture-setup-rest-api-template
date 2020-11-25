@@ -10,6 +10,10 @@ using REST.IoC.Configuration.ThrottleAttribute;
 using System.Threading;
 using Repositories.DataContracts;
 using System.Diagnostics;
+using MediatR;
+using REST.API.CQRS.Queries;
+using Database.Context.DataContracts.Entities;
+using System.Collections.Generic;
 
 namespace REST.API.Controllers.V2
 {
@@ -21,13 +25,16 @@ namespace REST.API.Controllers.V2
         private readonly IUserService _service;
         private readonly IMapper _mapper;
         private IRepositoryWrapperAsync _repositoryWrapper;
+        private readonly IMediator _mediator;
+
 
 #pragma warning disable CS1591
-        public UserController(IUserService service, IMapper mapper, IRepositoryWrapperAsync repositoryWrapper)
+        public UserController(IUserService service, IMapper mapper, IRepositoryWrapperAsync repositoryWrapper, IMediator mediator)
         {
             _service = service;
             _mapper = mapper;
             _repositoryWrapper = repositoryWrapper;
+            _mediator = mediator;
         }
 #pragma warning restore CS1591
 
@@ -44,6 +51,9 @@ namespace REST.API.Controllers.V2
         [Throttle(Name = "ThrottleGetUserId", Seconds = 1)]
         public async Task<User> Get(string id)
         {
+            var query = new OwnerQuery();
+            var owners = await _mediator.Send(query);
+
             var data = await _service.GetAsync(id);
 
             if (data != null)
@@ -51,6 +61,16 @@ namespace REST.API.Controllers.V2
             else
                 return null;
         }
+
+        [HttpGet("owners/all")]
+        public async Task<List<Owner>> GetAllOwners()
+        {
+            var query = new OwnerQuery();
+            var owners = await _mediator.Send(query);
+
+            return owners;
+        }
+
         #endregion
 
         #region POST
@@ -79,7 +99,7 @@ namespace REST.API.Controllers.V2
 
         #region PUT
         [HttpPut()]
-        public  async Task<bool> UpdateUser(User parameter)
+        public async Task<bool> UpdateUser(User parameter)
         {
             var t1 = 0;
             var t2 = 0;
@@ -120,20 +140,20 @@ namespace REST.API.Controllers.V2
             if (parameter == null)
                 throw new ArgumentNullException("parameter");
 
-           await _service.UpdateAsync(_mapper.Map<S.User>(parameter));
+            await _service.UpdateAsync(_mapper.Map<S.User>(parameter));
 
             var t5 = Thread.CurrentThread.ManagedThreadId;
 
             return false;
         }
-#endregion
+        #endregion
 
-#region DELETE
+        #region DELETE
         [HttpDelete("{id}")]
         public async Task<bool> DeleteDevice(string id)
         {
             return await _service.DeleteAsync(id);
         }
-#endregion
+        #endregion
     }
 }

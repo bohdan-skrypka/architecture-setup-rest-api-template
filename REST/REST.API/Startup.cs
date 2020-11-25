@@ -6,6 +6,7 @@ using Common.Infrastructure.Enum;
 using DataAccess;
 using EFCoreProvider;
 using Hangfire;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
@@ -98,6 +99,8 @@ namespace REST.API
             services.AddHangfire(x => x.UseSqlServerStorage(connectString));
 
             services.AddHangfireServer();
+
+            services.AddMediatR(typeof(Startup).GetTypeInfo().Assembly);
 
             #region Repositories
             services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
