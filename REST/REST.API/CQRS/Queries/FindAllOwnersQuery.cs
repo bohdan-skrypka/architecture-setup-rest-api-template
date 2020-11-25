@@ -11,20 +11,20 @@ using System.Threading.Tasks;
 
 namespace REST.API.CQRS.Queries
 {
-    public class OwnerQuery : IRequest<List<Owner>>
+    public class FindAllOwnersQuery : IRequest<List<Owner>>
     {
     }
 
-    public class HomeHandler : IRequestHandler<OwnerQuery, List<Owner>>
+    public class FindOwnersHandler : IRequestHandler<FindAllOwnersQuery, List<Owner>>
     {
         private IRepositoryWrapperAsync _repositoryWrapper;
 
-        public HomeHandler(IRepositoryWrapperAsync repositoryWrapperAsync)
+        public FindOwnersHandler(IRepositoryWrapperAsync repositoryWrapperAsync)
         {
             _repositoryWrapper = repositoryWrapperAsync;
         }
 
-        public Task<List<Owner>> Handle(OwnerQuery request, CancellationToken cancellationToken)
+        public Task<List<Owner>> Handle(FindAllOwnersQuery request, CancellationToken cancellationToken)
         {
             var t = _repositoryWrapper.Owner.FindAll().ToList();
 

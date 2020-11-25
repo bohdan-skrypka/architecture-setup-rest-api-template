@@ -5,6 +5,9 @@ using Common.Infrastructure.Caching;
 using Common.Infrastructure.Enum;
 using DataAccess.Async;
 using EFCoreProvider;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
@@ -13,9 +16,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Repositories.DataContracts;
-using Repositories.DataContracts.Repo2;
-using Repositories.DataContracts.Repo2.Repositories;
 using REST.API.Common.Attributes;
+using REST.API.DataContracts.Requests;
+using REST.IoC.Configuration.RequestsValidation;
 using REST.IoC.Configuration.Swagger;
 using REST.Services;
 using REST.Services.Contracts;
@@ -111,7 +114,7 @@ namespace REST.IoC.Configuration.DI
             services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
 
             // Add framework services.
-            services.AddMvc();
+            services.AddMvc().AddFluentValidation();
 
             // https://github.com/aspnet/Hosting/issues/793
             // the IHttpContextAccessor service is not registered by default.
@@ -148,6 +151,15 @@ namespace REST.IoC.Configuration.DI
             {
                 opt.Configuration = "localhost:6379";
             });
+        }
+
+        public static void RegisterRequestsValidationRules(this IServiceCollection services)
+        {
+            services.AddTransient<IValidator<UserCreationRequest>, UserCreationRequestValidation>();
+        }
+
+        public static void RegisterCQRSActions(this IServiceCollection services)
+        {
         }
     }
 }

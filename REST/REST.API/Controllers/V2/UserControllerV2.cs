@@ -51,7 +51,7 @@ namespace REST.API.Controllers.V2
         [Throttle(Name = "ThrottleGetUserId", Seconds = 1)]
         public async Task<User> Get(string id)
         {
-            var query = new OwnerQuery();
+            var query = new FindAllOwnersQuery();
             var owners = await _mediator.Send(query);
 
             var data = await _service.GetAsync(id);
@@ -65,7 +65,7 @@ namespace REST.API.Controllers.V2
         [HttpGet("owners/all")]
         public async Task<List<Owner>> GetAllOwners()
         {
-            var query = new OwnerQuery();
+            var query = new FindAllOwnersQuery();
             var owners = await _mediator.Send(query);
 
             return owners;

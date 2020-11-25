@@ -4,6 +4,7 @@ using Common.Infrastructure;
 using Common.Infrastructure.Caching;
 using Common.Infrastructure.Enum;
 using DataAccess;
+using Database.Context.DataContracts.Entities;
 using EFCoreProvider;
 using Hangfire;
 using MediatR;
@@ -27,10 +28,12 @@ using Repositories.DataContracts.Repo2;
 using Repositories.DataContracts.Repo2.Repositories;
 using REST.API.Common.Middlewares;
 using REST.API.Common.Settings;
+using REST.API.CQRS.Queries;
 using REST.IoC.Configuration.DI;
 using REST.IoC.Configuration.Filters;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Net;
@@ -106,6 +109,10 @@ namespace REST.API
             services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddTransient<IOwnerRepositoryCache, OwnerRepositoryCache>();
             #endregion
+
+            services.RegisterRequestsValidationRules();
+            services.AddTransient<IRequestHandler<FindAllOwnersQuery, List<Owner>>, FindOwnersHandler>();
+
 
             services.ConfigureCachingInMemory(Configuration);
 
