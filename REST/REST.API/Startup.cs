@@ -113,7 +113,6 @@ namespace REST.API
             services.RegisterRequestsValidationRules();
             services.AddTransient<IRequestHandler<FindAllOwnersQuery, List<Owner>>, FindOwnersHandler>();
 
-
             services.ConfigureCachingInMemory(Configuration);
 
             try
